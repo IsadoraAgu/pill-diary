@@ -18,6 +18,16 @@ Pill Diary is a responsive, installable progressive web app (PWA) with a custom 
 
 The design uses rounded-square calendar dates, subtle card shadows, Poppins typography, and mobile-friendly navigation.
 
+## App preview
+
+The screenshots below show the Today dashboard, medication history, and settings.
+
+<p align="center">
+  <img src="Screenshot%202026-10-31%20130353.png" alt="Pill Diary Today screen with medication card and interactive calendar" width="260">
+  <img src="history.png" alt="Pill Diary medication history screen" width="260">
+  <img src="Settings.png" alt="Pill Diary settings screen" width="260">
+</p>
+
 ## Features
 
 - **Interactive calendar:** View and update medication logs for eligible past dates and today.
@@ -64,6 +74,9 @@ Then visit [http://localhost:8000](http://localhost:8000).
 ```text
 pill-diary/
 ├── README.md
+├── Screenshot 2026-10-31 130353.png
+├── history.png
+├── Settings.png
 └── pill-diary-ivory-burgundy/
     ├── index.html
     ├── manifest.webmanifest
