@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFCEF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Pill Diary">
+  <meta name="description" content="A gentle, private pill tracker with an interactive calendar.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>Pill Diary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --burgundy:#80011F;
+      --burgundy-deep:#610018;
+      --burgundy-light:#AD5970;
+      --burgundy-wash:#F5E6E8;
+      --burgundy-pale:#FAF0F0;
+      --ivory:#FFFCEF;
+      --ivory-light:#FFFEF7;
+      --cream:#F6F0E3;
+      --ink:#542333;
+      --muted:#886F73;
+      --line:#EADDD8;
+      --shadow:0 13px 36px rgba(82, 25, 43, .075);
+      font-family:'Poppins',sans-serif;
+      color:var(--ink);
+      background:var(--ivory);
+    }
+    *{box-sizing:border-box}
+    body{padding:0;margin:0;min-height:100vh}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--burgundy-light);outline-offset:3px}
+    .desktop{
+      min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:28px 10px 40px;
+      background:radial-gradient(circle at 11% 15%,#F2E5E2 0,transparent 31%),radial-gradient(circle at 90% 91%,#EAD7D6 0,transparent 38%),var(--ivory)
+    }
+    .app{
+      position:relative;background:var(--ivory);width:min(100%,450px);min-height:820px;
+      border:1px solid #FBF5E8;border-radius:35px;overflow:hidden;
+      box-shadow:0 28px 85px rgba(75,24,38,.16)
+    }
+    header{padding:35px 26px 10px}
+    .eyebrow{font-size:10.5px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase;color:var(--burgundy-light)}
+    h1{font-size:34px;line-height:1.12;letter-spacing:-1.25px;margin:11px 0 6px;font-weight:790;color:var(--burgundy)}
+    .subtitle{color:var(--muted);font-size:13.5px;margin:0;line-height:1.55}
+    /* Vector star: renders consistently on iPhone, Android and desktop. */
+    .title-sparkle{
+      display:inline-block;width:23px;height:23px;vertical-align:middle;margin-left:5px;
+      fill:none;stroke:var(--burgundy-light);stroke-width:1.8;stroke-linecap:round
+    }
+    .app-logo{
+      height:44px;width:44px;border-radius:15px;background:transparent;border:1.5px solid var(--burgundy);
+      display:grid;place-items:center;color:var(--burgundy)
+    }
+    .brand-row{display:flex;align-items:center;justify-content:space-between}
+    main{padding:12px 21px 110px;min-height:590px}
+    .view[hidden]{display:none!important}
+    .panel{background:var(--ivory-light);border:1px solid #F1E9E0;box-shadow:var(--shadow);border-radius:24px;margin:12px 0 18px;padding:20px}
+    .panel-title{font-size:16px;font-weight:780;letter-spacing:-.35px;margin:0;color:var(--burgundy)}
+    .panel-caption{font-size:12px;color:var(--muted);margin:5px 0 0}
+    .today-panel{
+      position:relative;overflow:hidden;
+      background:linear-gradient(130deg,var(--burgundy) 0%,#77001D 50%,var(--burgundy-deep) 100%);
+      border:1px solid #8E1432;min-height:190px;box-shadow:0 13px 26px rgba(97,0,24,.20)
+    }
+    .today-panel::after{
+      content:"";pointer-events:none;position:absolute;width:210px;height:210px;right:-108px;bottom:-143px;
+      border:1px solid rgba(255,252,239,.18);border-radius:50%;box-shadow:0 0 0 38px rgba(255,252,239,.035),0 0 0 77px rgba(255,252,239,.026)
+    }
+    .today-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:relative;z-index:1}
+    .today-label{font-size:12px;font-weight:730;color:#E8C0C8}
+    .med-title{font-weight:790;font-size:23px;letter-spacing:-.55px;margin:12px 0 5px;max-width:245px;overflow-wrap:anywhere;color:var(--ivory)}
+    .med-time{font-size:13px;color:#EAC8CF}
+    .large-pill-button{
+      width:81px;height:81px;border-radius:24px;border:1px solid #F3DED8;
+      background:var(--ivory);display:grid;place-items:center;color:var(--burgundy);flex:0 0 auto;
+      transition:transform .18s,background .18s,box-shadow .18s;
+      box-shadow:0 5px 15px rgba(34,0,8,.10)
+    }
+    .large-pill-button:active,.pill-day:active{transform:scale(.93)}
+    .large-pill-button svg{width:51px;height:51px;fill:none;stroke:currentColor;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;transition:opacity .2s}
+    .large-pill-button.is-unlogged svg{opacity:.24}
+    .large-pill-button.is-logged{background:#FFF4E9;border-color:#FFFCEF;box-shadow:0 5px 20px rgba(255,252,239,.18)}
+    .today-status{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:690;margin-top:28px;color:#EAC4CD;position:relative;z-index:1}
+    .status-dot{height:8px;width:8px;border-radius:50%;background:#D9A5B4}
+    .today-status.logged{color:var(--ivory)}
+    .today-status.logged .status-dot{background:var(--ivory)}
+    .micro-hint{margin:8px 0 0;font-size:11px;color:#EBC8D1;position:relative;z-index:1}
+    .panel-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px}
+    .month-controls{display:flex;align-items:center;gap:7px}
+    .month-control{width:29px;height:29px;border:none;border-radius:10px;background:var(--burgundy-wash);color:var(--burgundy);font-size:19px;display:grid;place-items:center;padding:0}
+    .month-name{font-size:12px;color:var(--burgundy);min-width:85px;text-align:right;font-weight:740}
+    .weekdays,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+    .weekdays{margin:15px 0 8px}
+    .weekdays span{text-align:center;font-size:10.5px;font-weight:720;color:#A49192}
+    .day{
+      height:60px;border:1px solid #EFE3DE;border-radius:13px;display:flex;
+      flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6px;gap:1px;
+      background:#FFFDF7;min-width:0
+    }
+    .day.empty{border:none;background:none}
+    .day.today{background:#F6E8E9;border-color:#D7A2AE}
+    .day.selected{border-color:var(--burgundy);box-shadow:0 0 0 1px var(--burgundy) inset}
+    .day.future{background:#FCFAF2}
+    .day-number{border:none;background:none;padding:0;min-height:16px;width:100%;font-size:11.5px;font-weight:680;color:#79636B}
+    .day.today .day-number{color:var(--burgundy);font-weight:840}
+    .pill-day{
+      border:none;background:transparent;border-radius:9px;height:29px;width:min(31px,100%);
+      display:grid;place-items:center;color:var(--burgundy);padding:2px;transition:transform .13s
+    }
+    .pill-day svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;transition:opacity .2s}
+    .pill-day.is-unlogged svg{opacity:.23}
+    .pill-day.is-logged svg{opacity:1}
+    .pill-day:disabled{cursor:default;opacity:.3}
+    .pill-day:disabled svg{opacity:.2}
+    .selected-summary{
+      padding:12px 13px;border-radius:15px;background:var(--burgundy-pale);
+      display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:15px
+    }
+    .selected-summary strong{font-size:12.5px;display:block;color:var(--burgundy)}
+    .selected-summary span{font-size:11.5px;color:var(--muted);display:block;margin-top:4px}
+    .selected-chip{font-size:10px;color:var(--ivory)!important;background:var(--burgundy);padding:7px 10px;border-radius:10px;font-weight:760;white-space:nowrap}
+    .legend{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+    .legend-item{font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center}
+    .legend-icon{width:18px;height:18px;color:var(--burgundy)}
+    .legend-icon.faded{opacity:.23}
+    .small-heading{margin:2px 4px 11px;font-size:16px;font-weight:760;color:var(--burgundy)}
+    .note{margin:9px 4px 0;font-size:11.5px;color:#957E7C;line-height:1.6}
+    .empty-state{padding:19px;border-radius:16px;background:var(--ivory-light);text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+    .history-list{display:flex;flex-direction:column;gap:10px}
+    .history-item{padding:14px 16px;background:var(--ivory-light);border:1px solid #F1E9E0;border-radius:17px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+    .history-icon{width:39px;height:39px;border-radius:13px;background:var(--burgundy-wash);display:grid;place-items:center;color:var(--burgundy)}
+    .history-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2}
+    .history-meta{flex:1}
+    .history-meta strong{display:block;font-size:13px}
+    .history-meta span{font-size:11.5px;color:var(--muted)}
+    .history-badge{font-size:11px;color:var(--burgundy);background:var(--burgundy-wash);border-radius:9px;padding:6px 9px}
+    .summary-metrics{display:flex;gap:10px}
+    .metric{flex:1;text-align:center;background:var(--ivory-light);border:1px solid #F1E9E0;border-radius:17px;padding:16px 8px;box-shadow:var(--shadow)}
+    .metric strong{display:block;font-size:25px;color:var(--burgundy)}
+    .metric small{font-size:11px;color:var(--muted)}
+    .form-label{display:block;font-size:12px;color:var(--burgundy);font-weight:730;margin:17px 0 7px}
+    .form-input{width:100%;font-size:15px;border:1px solid #E6D4D2;border-radius:13px;padding:12px 13px;color:var(--ink);background:#FFFDF7;min-height:45px}
+    /* iOS Safari has its own sizing and centring for native date/time fields. */
+    .form-input[type="date"], .form-input[type="time"]{
+      -webkit-appearance:none;appearance:none;
+      display:block;box-sizing:border-box;
+      width:100%;min-width:0;max-width:100%;
+      min-height:48px;line-height:1.25;
+      font-size:16px;text-align:left;
+    }
+    .form-input[type="date"]::-webkit-date-and-time-value,
+    .form-input[type="time"]::-webkit-date-and-time-value{
+      text-align:left;min-height:1.25em;margin:0;
+    }
+    .form-input[type="date"]::-webkit-datetime-edit,
+    .form-input[type="time"]::-webkit-datetime-edit{padding:0;text-align:left}
+    .save-button,.secondary-button{border:0;background:var(--burgundy);border-radius:15px;padding:14px 17px;font-size:13px;color:var(--ivory);font-weight:740;width:100%;margin-top:20px}
+    .secondary-button{background:var(--burgundy-wash);border:1px solid #E5CBCD;color:var(--burgundy);margin-top:8px}
+    .settings-note{line-height:1.6;color:var(--muted);font-size:12px;margin:12px 0}
+    .file-label{display:block;text-align:center;cursor:pointer}
+    .file-label input{position:absolute;opacity:0;width:1px;height:1px}
+    .bottom-bar{
+      position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-around;
+      background:rgba(255,252,239,.98);border-top:1px solid #EDE1D9;
+      padding:13px 15px max(17px, env(safe-area-inset-bottom));min-height:80px;z-index:5
+    }
+    .nav-button{border:0;background:none;color:#A68B92;min-width:84px;display:flex;align-items:center;flex-direction:column;gap:5px;font-size:10.5px;font-weight:730;padding:3px}
+    .nav-button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .nav-button.active{color:var(--burgundy)}
+    .nav-button.active .nav-icon{background:var(--burgundy-wash)}
+    .nav-icon{padding:6px 15px;border-radius:14px;height:32px;display:grid;place-items:center}
+    .toast{position:fixed;z-index:50;bottom:26px;left:50%;transform:translateX(-50%);background:var(--burgundy-deep);color:var(--ivory);box-shadow:0 6px 20px #451d3f33;padding:12px 18px;border-radius:15px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap}
+    .toast.show{opacity:1}
+    @media(max-width:520px){
+      .desktop{padding:0;display:block;background:var(--ivory)}
+      .app{width:100%;min-height:100dvh;border-radius:0;border:0;box-shadow:none}
+      header{padding-top:max(28px,env(safe-area-inset-top))}
+      .bottom-bar{position:fixed}
+      .toast{bottom:92px}
+      .day{height:clamp(54px,14.2vw,63px)}
+    }
+    @media(max-width:360px){
+      .panel{padding:15px}
+      .weekdays,.calendar{gap:4px}
+      .med-title{font-size:21px}
+      .large-pill-button{width:73px;height:73px}
+    }
+    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  </style>
+</head>
+<body>
+<div class="desktop"><div class="app">
+  <header>
+    <div class="brand-row">
+      <span class="eyebrow">Your little daily ritual</span>
+      <div class="app-logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="16" cy="16" r="10"/><path d="M16 7V25"/></svg>
+      </div>
+    </div>
+    <h1 id="page-title">Pill diary <svg class="title-sparkle" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2V22 M2 12H22 M5 5L19 19 M19 5L5 19"/></svg></h1>
+    <p class="subtitle" id="page-subtitle">A little space to keep track, one day at a time.</p>
+  </header>
+  <main>
+    <section class="view" id="view-today">
+      <div class="panel today-panel">
+        <div class="today-top">
+          <div>
+            <span class="today-label" id="today-day-label"></span>
+            <div class="med-title" id="medication-name">Desogestrel</div>
+            <div class="med-time" id="medication-time">Every day · 8:00 AM</div>
+          </div>
+          <button id="today-pill" class="large-pill-button is-unlogged" aria-label="Log today's pill as taken" aria-pressed="false" title="Tap to log or undo a dose"></button>
+        </div>
+        <div id="today-status" class="today-status"><span class="status-dot"></span><span id="today-status-text">Not logged today</span></div>
+        <p class="micro-hint">Tap the outlined pill to log it. Tap again to undo.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">
+          <div><h2 class="panel-title">Your calendar</h2><p class="panel-caption">A little progress, day by day</p></div>
+          <div class="month-controls"><button id="previous-month" class="month-control" aria-label="Previous month">‹</button><span class="month-name" id="month-label"></span><button id="next-month" class="month-control" aria-label="Next month">›</button></div>
+        </div>
+        <div class="weekdays" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+        <div id="calendar" class="calendar" aria-label="Pill tracking calendar"></div>
+        <div class="selected-summary" aria-live="polite"><div><strong id="selected-day-label"></strong><span id="selected-day-status"></span></div><span id="selected-chip" class="selected-chip">Not logged</span></div>
+        <div class="legend">
+          <span class="legend-item"><svg class="legend-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="16" cy="16" r="10"/><path d="M16 6V26"/></svg> Taken</span>
+          <span class="legend-item"><svg class="legend-icon faded" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="16" cy="16" r="10"/><path d="M16 6V26"/></svg> Not logged</span>
+        </div>
+      </div>
+      <p class="note">This is your personal log, not a medical reminder. An unlogged day doesn't necessarily mean you missed a dose.</p>
+    </section>
+    <section class="view" id="view-history" hidden>
+      <div class="summary-metrics"><div class="metric"><strong id="total-taken">0</strong><small>Logged days</small></div><div class="metric"><strong id="this-month-taken">0</strong><small>This month</small></div></div>
+      <h2 class="small-heading" style="margin-top:27px">Your dose history</h2>
+      <div id="history-list" class="history-list"></div>
+      <p class="note">Entries reflect what you've logged. They don't independently verify when a pill was taken.</p>
+    </section>
+    <section class="view" id="view-settings" hidden>
+      <div class="panel">
+        <h2 class="panel-title">Your medication</h2><p class="panel-caption">Make this little space your own.</p>
+        <form id="settings-form">
+          <label class="form-label" for="setting-name">Medication name</label><input id="setting-name" class="form-input" autocomplete="off" maxlength="65" required>
+          <label class="form-label" for="setting-time">Usual time (display only)</label><input id="setting-time" class="form-input" type="time" required>
+          <label class="form-label" for="setting-start">Date you started tracking</label><input id="setting-start" class="form-input" type="date" required>
+          <button class="save-button" type="submit">Save changes</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">Your data stays on this device</h2>
+        <p class="settings-note">No account, no subscription, no reminders. Your entries are stored in this browser, so clearing its data or switching devices can erase them unless you keep a backup.</p>
+        <button class="secondary-button" id="export-button">Download backup</button>
+        <label class="secondary-button file-label" for="import-file">Restore backup<input id="import-file" type="file" accept=".json,application/json"></label>
+      </div>
+    </section>
+  </main>
+  <nav class="bottom-bar" aria-label="Main navigation">
+    <button class="nav-button active" data-page="today" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Today</button>
+    <button class="nav-button" data-page="history"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M7 2v4M17 2v4M3 9h18M8 13h3M8 17h6"/></svg></span>History</button>
+    <button class="nav-button" data-page="settings"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1-1.9 3.2-.2-.1a1 1 0 0 0-1.1.1l-.1.1a1 1 0 0 1-1.1.4h-3.6a1 1 0 0 1-.8-.6 1 1 0 0 0-1-.6 1 1 0 0 0-.7.3l-.2.2-3.2-1.9.1-.3a1 1 0 0 0-.4-1.2 1 1 0 0 1-.6-.9v-3.7a1 1 0 0 1 .6-.9 1 1 0 0 0 .5-1 1 1 0 0 0-.3-.8l-.2-.2 1.9-3.2.3.1a1 1 0 0 0 1.2-.4 1 1 0 0 1 .9-.6h3.7a1 1 0 0 1 .9.6 1 1 0 0 0 1 .5 1 1 0 0 0 .8-.3l.2-.2 3.2 1.9-.1.3a1 1 0 0 0 .4 1.2 1 1 0 0 1 .6.9v3.7a1 1 0 0 1-.6.9 1 1 0 0 0-.6.9z"/></svg></span>Settings</button>
+  </nav>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+  'use strict';
+  const KEY='pill-diary-v1';
+  const $=id=>document.getElementById(id);
+  const pillSVG='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10"/><path d="M16 6V26"/></svg>';
+  const pad=n=>String(n).padStart(2,'0');
+  const localDay=d=>[d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-');
+  const todayKey=()=>localDay(new Date());
+  const formatDay=(key,options)=>new Date(`${key}T12:00:00`).toLocaleDateString('en-GB',options);
+  const escape=s=>String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const goodKey=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(new Date(s+'T12:00:00').getTime())&&localDay(new Date(s+'T12:00:00'))===s;
+  const defaults=()=>({name:'Desogestrel',time:'08:00',start:todayKey(),logs:{}});
+  function load(){try{
+    const s=JSON.parse(localStorage.getItem(KEY));if(!s||typeof s!=='object')return defaults();
+    const base=defaults();return {
+      name:typeof s.name==='string'&&s.name.trim()?s.name.slice(0,65):base.name,
+      time:typeof s.time==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(s.time)?s.time:base.time,
+      start:goodKey(s.start)?s.start:base.start,
+      logs: s.logs&&typeof s.logs==='object'&&!Array.isArray(s.logs)?Object.fromEntries(Object.entries(s.logs).filter(([k,v])=>goodKey(k)&&v&&typeof v==='object'&&typeof v.recordedAt==='string')):{}
+    };
+  }catch{return defaults()}}
+  let state=load();
+  let now=new Date();let displayYear=now.getFullYear(),displayMonth=now.getMonth();let selected=todayKey();
+  let toastTimer;
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{showToast('Storage unavailable. Please export a backup.');return false}}
+  function showToast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2300)}
+  function logged(k){return Boolean(state.logs[k])}
+  function eligible(k){return k>=state.start&&k<=todayKey()}
+  function toggle(k){if(!eligible(k))return;const prev=state.logs[k];if(prev)delete state.logs[k];else state.logs[k]={recordedAt:new Date().toISOString()};selected=k;persist();render();showToast(prev?'Pill log removed':'Pill logged as taken')}
+  function timeText(t){const [h,m]=t.split(':').map(Number);return new Date(2020,0,1,h,m).toLocaleTimeString('en-GB',{hour:'numeric',minute:'2-digit'})}
+  function renderToday(){
+    const k=todayKey();const active=eligible(k),isLogged=logged(k);
+    $('today-day-label').textContent=formatDay(k,{weekday:'long',day:'numeric',month:'long'});
+    $('medication-name').textContent=state.name;
+    $('medication-time').textContent=`Every day · ${timeText(state.time)}`;
+    const btn=$('today-pill');btn.innerHTML=pillSVG;btn.classList.toggle('is-logged',isLogged);btn.classList.toggle('is-unlogged',!isLogged);btn.disabled=!active;btn.setAttribute('aria-pressed',String(isLogged));btn.setAttribute('aria-label',isLogged?`Undo ${state.name} log for today`:`Log ${state.name} as taken today`);
+    $('today-status').classList.toggle('logged',isLogged);
+    $('today-status-text').textContent=isLogged?'Pill logged as taken today':'Not logged today';
+  }
+  function renderCalendar(){
+    const date=new Date(displayYear,displayMonth,1);
+    $('month-label').textContent=date.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+    const offset=(date.getDay()+6)%7;const numberOfDays=new Date(displayYear,displayMonth+1,0).getDate();const grid=$('calendar');grid.replaceChildren();
+    for(let i=0;i<offset;i++){const blank=document.createElement('div');blank.className='day empty';grid.append(blank)}
+    for(let d=1;d<=numberOfDays;d++){
+      const k=`${displayYear}-${pad(displayMonth+1)}-${pad(d)}`;const isLogged=logged(k);const canLog=eligible(k);
+      const day=document.createElement('div');day.className='day'+(k===todayKey()?' today':'')+(k===selected?' selected':'')+(k>todayKey()?' future':'');
+      const dateButton=document.createElement('button');dateButton.className='day-number';dateButton.textContent=String(d);dateButton.setAttribute('aria-label',`View ${formatDay(k,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`);dateButton.addEventListener('click',()=>{selected=k;renderCalendar()});
+      const pill=document.createElement('button');pill.className='pill-day '+(isLogged?'is-logged':'is-unlogged');pill.innerHTML=pillSVG;pill.disabled=!canLog;pill.setAttribute('aria-pressed',String(isLogged));pill.setAttribute('aria-label',`${isLogged?'Undo taken log':'Log as taken'} for ${formatDay(k,{day:'numeric',month:'long',year:'numeric'})}`);pill.addEventListener('click',()=>toggle(k));
+      day.append(dateButton,pill);grid.append(day);
+    }
+    const full=formatDay(selected,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    $('selected-day-label').textContent=full;
+    const isLogged=logged(selected);const valid=eligible(selected);
+    $('selected-day-status').textContent=isLogged?'You recorded your pill as taken.':selected<state.start?'Before your tracking start date.':selected>todayKey()?'A future day — not available yet.':'No pill logged for this day.';
+    $('selected-chip').textContent=isLogged?'Taken':valid?'Not logged':'Unavailable';
+  }
+  function renderHistory(){
+    const days=Object.keys(state.logs).filter(k=>goodKey(k)&&k>=state.start&&k<=todayKey()).sort().reverse();
+    const month=todayKey().slice(0,7);$('total-taken').textContent=String(days.length);$('this-month-taken').textContent=String(days.filter(k=>k.startsWith(month)).length);
+    const list=$('history-list');list.replaceChildren();
+    if(!days.length){list.innerHTML='<div class="empty-state">No pills logged yet.<br>Once you tap a pill icon, it will appear here. ♡</div>';return;}
+    for(const k of days){
+      const item=document.createElement('div');item.className='history-item';
+      const dateString=formatDay(k,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+      const rec=new Date(state.logs[k].recordedAt);const loggedAt=isNaN(rec.getTime())?'':`Logged ${rec.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} at ${rec.toLocaleTimeString('en-GB',{hour:'numeric',minute:'2-digit'})}`;
+      item.innerHTML=`<span class="history-icon">${pillSVG}</span><div class="history-meta"><strong>${escape(dateString)}</strong><span>${escape(loggedAt)}</span></div><span class="history-badge">Taken</span>`;list.append(item);
+    }
+  }
+  function renderSettings(){$('setting-name').value=state.name;$('setting-time').value=state.time;$('setting-start').value=state.start;$('setting-start').max=todayKey()}
+  function render(){renderToday();renderCalendar();renderHistory();renderSettings()}
+  $('today-pill').addEventListener('click',()=>toggle(todayKey()));
+  $('previous-month').addEventListener('click',()=>{displayMonth--;if(displayMonth<0){displayMonth=11;displayYear--;}renderCalendar()});
+  $('next-month').addEventListener('click',()=>{displayMonth++;if(displayMonth>11){displayMonth=0;displayYear++;}renderCalendar()});
+  const titles={today:['Pill diary','A little space to keep track, one day at a time.'],history:['Your history','The days you logged, all in one place.'],settings:['Your settings','Personalise your daily routine.']};
+  function navigate(page){
+    for(const v of document.querySelectorAll('.view'))v.hidden=v.id!==`view-${page}`;
+    for(const b of document.querySelectorAll('.nav-button')){const active=b.dataset.page===page;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')}
+    $('page-title').innerHTML=page==='today'?'Pill diary <svg class="title-sparkle" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2V22 M2 12H22 M5 5L19 19 M19 5L5 19"/></svg>':titles[page][0];$('page-subtitle').textContent=titles[page][1];window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.nav-button').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page)));
+  $('settings-form').addEventListener('submit',e=>{
+    e.preventDefault();const name=$('setting-name').value.trim(),time=$('setting-time').value,start=$('setting-start').value;
+    if(!name||!goodKey(start)||start>todayKey()||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){showToast('Please check your medication details');return}
+    state.name=name;state.time=time;state.start=start;persist();render();showToast('Settings saved');navigate('today')
+  });
+  $('export-button').addEventListener('click',()=>{
+    const json=JSON.stringify({app:'Pill Diary',version:1,exportedAt:new Date().toISOString(),...state},null,2);
+    const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`pill-diary-backup-${todayKey()}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
+  });
+  $('import-file').addEventListener('change',async e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    try{if(file.size>2_000_000)throw Error('Backup file is too large');const json=JSON.parse(await file.text());
+      if(json.app!=='Pill Diary'||json.version!==1||!json.logs||typeof json.logs!=='object'||!goodKey(json.start))throw Error('This does not look like a Pill Diary backup');
+      if(!confirm('Replace your current pill history and settings with the backup?'))return;
+      localStorage.setItem(KEY,JSON.stringify(json));state=load();displayYear=new Date().getFullYear();displayMonth=new Date().getMonth();selected=todayKey();render();showToast('Backup restored');
+    }catch(err){showToast(err.message||'Could not read backup')}finally{e.target.value=''}
+  });
+  render();
+  if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+})();
+</script>
+</body>
+</html>
